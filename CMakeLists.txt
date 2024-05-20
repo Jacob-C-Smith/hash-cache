@@ -71,7 +71,7 @@ target_include_directories(hash_cache_example PUBLIC ${HASH_CACHE_INCLUDE_DIR} $
 target_link_libraries(hash_cache_example hash_cache log sync)
 
 # Add source to this project's library
-add_library (hash_cache SHARED "hash.c")
+add_library (hash_cache SHARED "hash_cache.c")
 add_dependencies(hash_cache log sync)
 target_include_directories(hash_cache PUBLIC ${HASH_CACHE_INCLUDE_DIR} ${SYNC_INCLUDE_DIR} ${LOG_INCLUDE_DIR})
 target_link_libraries(hash_cache PRIVATE log sync)
