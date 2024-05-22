@@ -108,19 +108,10 @@ int main ( int argc, const char *argv[] )
 
     // Error handling
     {
-        
-        failed_to_initialize_hash_cache:
-
-            // Write an error message to standard out
-            printf("Failed to initialize hash_cache!\n");
-
-            // Error
-            return EXIT_FAILURE;
-
         failed_to_run_hash_example:
 
             // Print an error message
-            printf("Failed to run hash example!\n");
+            log_error("Failed to run hash example!\n");
 
             // Error
             return EXIT_FAILURE;
@@ -128,7 +119,7 @@ int main ( int argc, const char *argv[] )
         failed_to_run_cache_example:
 
             // Print an error message
-            printf("Failed to run cache example!\n");
+            log_error("Failed to run cache example!\n");
 
             // Error
             return EXIT_FAILURE;
@@ -158,7 +149,7 @@ void parse_command_line_arguments ( int argc, const char *argv[], bool *examples
     if ( argc > HASH_CACHE_EXAMPLES_QUANTITY + 1 ) goto invalid_arguments;
 
     // Iterate through each command line argument
-    for (size_t i = 1; i < argc; i++)
+    for (int i = 1; i < argc; i++)
     {
         
         // Hash example?
@@ -242,27 +233,7 @@ int hash_cache_hash_example ( int argc, const char *argv[] )
     return EXIT_SUCCESS;
 
     // Error handling
-    {
-
-        // Parallel errors
-        {
-            failed_to_start_thread:
-
-                // Write an error message to standard out
-                log_error("Failed to create hash_cache thread in call to function \"%s\"\n", __FUNCTION__);
-
-                // Error
-                return 0;
-
-            failed_to_join_thread:
-                
-                // Write an error message to standard out
-                log_error("Failed to join hash_cache thread in call to function \"%s\"\n", __FUNCTION__);
-
-                // Error
-                return 0;
-        }
-    }
+    { }
 }
 
 int hash_cache_cache_example ( int argc, const char *argv[] )
@@ -293,15 +264,15 @@ int hash_cache_cache_example ( int argc, const char *argv[] )
     // Error handling
     {
 
-        // Parallel errors
+        // Hash cache errors
         {
-            failed_to_construct_cache:
-                #ifndef NDEBUG
-                    printf("[hash cache] [cache] Failed to construct cache in call to function \"%s\"\n", __FUNCTION__);
-                #endif
-                
-                // Error
-                return 0;
+            // failed_to_construct_cache:
+            //     #ifndef NDEBUG
+            //         printf("[hash cache] [cache] Failed to construct cache in call to function \"%s\"\n", __FUNCTION__);
+            //     #endif
+            //
+            //     // Error
+            //     return 0;
         }
     }
 }

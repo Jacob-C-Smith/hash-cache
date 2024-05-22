@@ -48,7 +48,7 @@ hash64 hash_fnv64 ( const void* const k, size_t l )
     {
 
         // XOR the eight least significant bits of the hash
-        h ^= ((char *)k)[i];
+        h ^= (unsigned long long)((char *)k)[i];
 
         // Multiply the hash by the prime
         h *= p;
@@ -92,13 +92,13 @@ hash64 hash_mmh64 ( const void* const k, size_t l )
     // Compute the hash
     while ( data != end )
     {
-        unsigned long long k = *data++;
+        unsigned long long n = *data++;
 
-        k *= m;
-        k ^= k >> r;
-        k *= m;
+        n *= m;
+        n ^= n >> r;
+        n *= m;
 
-        h ^= k;
+        h ^= n;
         h *= m;
     }
 
@@ -106,12 +106,12 @@ hash64 hash_mmh64 ( const void* const k, size_t l )
 
     switch ( l & 7 )
     {
-        case 7: h ^= (unsigned long long)(d2[6]) << 48;
-        case 6: h ^= (unsigned long long)(d2[5]) << 40;
-        case 5: h ^= (unsigned long long)(d2[4]) << 32;
-        case 4: h ^= (unsigned long long)(d2[3]) << 24;
-        case 3: h ^= (unsigned long long)(d2[2]) << 16;
-        case 2: h ^= (unsigned long long)(d2[1]) << 8;
+        case 7: h ^= (unsigned long long)(d2[6]) << 48; __attribute__((fallthrough));
+        case 6: h ^= (unsigned long long)(d2[5]) << 40; __attribute__((fallthrough));
+        case 5: h ^= (unsigned long long)(d2[4]) << 32; __attribute__((fallthrough));
+        case 4: h ^= (unsigned long long)(d2[3]) << 24; __attribute__((fallthrough));
+        case 3: h ^= (unsigned long long)(d2[2]) << 16; __attribute__((fallthrough));
+        case 2: h ^= (unsigned long long)(d2[1]) << 8;  __attribute__((fallthrough));
         case 1: h ^= (unsigned long long)(d2[0]);
             h *= m;
     }

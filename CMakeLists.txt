@@ -4,6 +4,20 @@ cmake_minimum_required (VERSION 3.28.0)
 # The name of the repository
 project ("hash cache")
 
+# Set compiler warnings
+if(MSVC)
+    # TODO
+else()
+
+    # For clang
+    #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -lrt -std=gnu99 -Wall -Wextra -Weverything -Wno-declaration-after-statement -Ofast")
+
+    # For GCC
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -Wall -Wextra -O3 -pthread -lpthread")
+    add_compile_definitions(__USE_POSIX199309)
+    add_compile_options(-Wall -Wextra -Wpointer-arith -Wstrict-prototypes -Wformat-security -Wfloat-equal -Wshadow -Wconversion -pthread -lpthread -Wlogical-not-parentheses -Wnull-dereference)
+endif()
+
 # Comment out for Debug mode
 set(IS_DEBUG_BUILD CMAKE_BUILD_TYPE STREQUAL "Debug")
 
