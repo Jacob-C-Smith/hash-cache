@@ -19,9 +19,10 @@
 // Enumeration definitions
 enum hash_cache_examples_e
 {
-    HASH_CACHE_HASH_EXAMPLE      = 0,
-    HASH_CACHE_CACHE_EXAMPLE     = 1,
-    HASH_CACHE_EXAMPLES_QUANTITY = 2
+    HASH_CACHE_HASH_EXAMPLE       = 0,
+    HASH_CACHE_CACHE_EXAMPLE      = 1,
+    HASH_CACHE_HASH_TABLE_EXAMPLE = 2,
+    HASH_CACHE_EXAMPLES_QUANTITY  = 3
 };
 
 // Forward declarations
@@ -65,6 +66,16 @@ int hash_cache_hash_example ( int argc, const char *argv[] );
  */
 int hash_cache_cache_example ( int argc, const char *argv[] );
 
+/** !
+ * Hash table example program
+ * 
+ * @param argc the argc parameter of the entry point
+ * @param argv the argv parameter of the entry point
+ * 
+ * @return 1 on success, 0 on error
+ */
+int hash_cache_hash_table_example ( int argc, const char *argv[] );
+
 // Entry point
 int main ( int argc, const char *argv[] )
 {
@@ -76,14 +87,16 @@ int main ( int argc, const char *argv[] )
     parse_command_line_arguments(argc, argv, examples_to_run);
 
     // Formatting
-    printf(
+    log_info(
         "╭────────────────────╮\n"\
         "│ hash cache example │\n"\
         "╰────────────────────╯\n"\
-        "The hash cache library provides hashing functions and abstractions for caching.\n"\
-        "Hash cache provides %d abstractions. Hashing functions, the cache, [TODO].\n\n"\
+        "The hash cache library provides hashing functions and caching abstractions.\n"\
+        "Hash cache provides %d abstractions. Hashing functions, the cache, and the\n"\
+        "hash table.\n\n"\
         "Hashing functions take some length of data, and produce a unique integer value.\n"\
-        "A cache [TODO: Describe].\n\n",
+        "A cache stores objects for quick access using a most recently used scheme.\n"
+        "A hash table is used to access properties in constant time.\n\n",
         HASH_CACHE_EXAMPLES_QUANTITY
     );
 
@@ -91,17 +104,23 @@ int main ( int argc, const char *argv[] )
     // Run the examples //
     //////////////////////
 
-    // Run the thread example program
+    // Run the hashing example program
     if ( examples_to_run[HASH_CACHE_HASH_EXAMPLE] )
 
         // Error check
         if ( hash_cache_hash_example(argc, argv) == EXIT_FAILURE ) goto failed_to_run_hash_example;
 
-    // Run the thread pool example program
+    // Run the cache example program
     if ( examples_to_run[HASH_CACHE_CACHE_EXAMPLE] )
 
         // Error check
         if ( hash_cache_cache_example(argc, argv) == EXIT_FAILURE ) goto failed_to_run_cache_example;
+
+    // Run the hash table program
+    if ( examples_to_run[HASH_CACHE_HASH_TABLE_EXAMPLE] )
+
+        // Error check
+        if ( hash_cache_hash_table_example(argc, argv) == EXIT_FAILURE ) goto failed_to_run_hash_table_example;
 
     // Success
     return EXIT_SUCCESS;
@@ -123,6 +142,14 @@ int main ( int argc, const char *argv[] )
 
             // Error
             return EXIT_FAILURE;
+
+        failed_to_run_hash_table_example:
+
+            // Print an error message
+            log_error("Failed to run hash table example!\n");
+
+            // Error
+            return EXIT_FAILURE;
     }
 }
 
@@ -133,7 +160,7 @@ void print_usage ( const char *argv0 )
     if ( argv0 == (void *) 0 ) exit(EXIT_FAILURE);
 
     // Print a usage message to standard out
-    printf("Usage: %s [thread] [thread-pool] [schedule]\n", argv0);
+    printf("Usage: %s [hash] [cache] [hash-table]\n", argv0);
 
     // Done
     return;
@@ -163,6 +190,12 @@ void parse_command_line_arguments ( int argc, const char *argv[], bool *examples
 
             // Set the schedule example flag
             examples_to_run[HASH_CACHE_CACHE_EXAMPLE] = true;
+        
+        // Hash table example?
+        else if ( strcmp(argv[i], "hash-table") == 0 )
+
+            // Set the schedule example flag
+            examples_to_run[HASH_CACHE_HASH_TABLE_EXAMPLE] = true;
 
         // Default
         else goto invalid_arguments;
@@ -209,7 +242,7 @@ int hash_cache_hash_example ( int argc, const char *argv[] )
     (void) argv;
 
     // Formatting
-    printf(
+    log_info(
         "╭──────────────╮\n"\
         "│ hash example │\n"\
         "╰──────────────╯\n"\
@@ -244,7 +277,7 @@ int hash_cache_cache_example ( int argc, const char *argv[] )
     (void) argv;
 
     // Formatting
-    printf(
+    log_info(
         "╭───────────────╮\n"\
         "│ cache example │\n"\
         "╰───────────────╯\n"\
@@ -252,11 +285,10 @@ int hash_cache_cache_example ( int argc, const char *argv[] )
     );
 
     // Initialized data
-    //cache *p_cache = (void *) 0;
+    cache *p_cache = (void *) 0;
 
     // Construct the cache
-    //if ( cache_construct(&p_cache, 64) == 0 ) goto failed_to_construct_cache;
-    //if ( cache_construct2(&p_cache, 64) == 0 ) goto failed_to_construct_cache;
+    if ( cache_construct(&p_cache, 64) == 0 ) goto failed_to_construct_cache;
 
     // Success
     return EXIT_SUCCESS;
@@ -266,13 +298,54 @@ int hash_cache_cache_example ( int argc, const char *argv[] )
 
         // Hash cache errors
         {
-            // failed_to_construct_cache:
-            //     #ifndef NDEBUG
-            //         printf("[hash cache] [cache] Failed to construct cache in call to function \"%s\"\n", __FUNCTION__);
-            //     #endif
-            //
-            //     // Error
-            //     return 0;
+            failed_to_construct_cache:
+                #ifndef NDEBUG
+                    log_error("[hash cache] [cache] Failed to construct cache in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+            
+                // Error
+                return 0;
+        }
+    }
+}
+
+int hash_cache_hash_table_example ( int argc, const char *argv[] )
+{
+// Supress warnings
+    (void) argc;
+    (void) argv;
+
+    // Formatting
+    log_info(
+        "╭────────────────────╮\n"\
+        "│ hash table example │\n"\
+        "╰────────────────────╯\n"\
+        "In this example [TODO] \n\n"\
+    );
+
+    // Initialized data
+    //
+
+    // Construct the hash table
+    //
+
+    // Success
+    return EXIT_SUCCESS;
+    
+    // Error handling
+    {
+
+        // Hash cache errors
+        {
+            /*
+            failed_to_construct_hash_table:
+                #ifndef NDEBUG
+                    log_error("[hash cache] [hash table] Failed to construct hash table in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+            
+                // Error
+                return 0;
+            */
         }
     }
 }

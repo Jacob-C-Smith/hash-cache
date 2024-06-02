@@ -160,15 +160,30 @@ int cache_create ( cache **const pp_cache )
     // Success
     return 1;
 
-    // Argument errors
+    // Error handling
     {
-        no_cache:
-            #ifndef NDEBUG
-                log_error("[hash cache] Null pointer provided for parameter \"pp_cache\" in call to function \"%s\"\n", __FUNCTION__);
-            #endif
 
-            // Error
-            return 0;
+        // Argument errors
+        {
+            no_cache:
+                #ifndef NDEBUG
+                    log_error("[hash cache] Null pointer provided for parameter \"pp_cache\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // Error
+                return 0;
+        }
+
+        // Standard library errors
+        {
+            no_mem:
+                #ifndef NDEBUG
+                    log_error("[hash cache] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // Error
+                return 0;
+        }
     }
 }
 
@@ -177,6 +192,18 @@ int hash_table_create ( hash_table **const pp_hash_table )
     
     // Argument errors
     if ( pp_hash_table == (void *) 0 ) goto no_hash_table;
+
+    // Initialized data
+    hash_table *p_hash_table = HASH_CACHE_REALLOC(0, sizeof(hash_table));
+
+    // Error check
+    if ( p_hash_table == (void *) 0 ) goto no_mem;
+
+    // Zero set
+    memset(p_hash_table, 0, sizeof(hash_table));
+
+    // Return a pointer to the caller
+    *pp_hash_table = p_hash_table;
 
     // Success
     return 1;
@@ -194,6 +221,17 @@ int hash_table_create ( hash_table **const pp_hash_table )
                 // Error
                 return 0;
         }
+
+        // Standard library errors
+        {
+            no_mem:
+                #ifndef NDEBUG
+                    log_error("[hash cache] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // Error
+                return 0;
+        }
     }
 }
 
@@ -203,6 +241,8 @@ int cache_construct ( cache **const pp_cache, size_t size )
     // Argument check
     if ( pp_cache == (void *) 0 ) goto no_cache;
     if ( size     ==          0 ) goto invalid_size;
+
+
 
     // Success
     return 1;
@@ -232,6 +272,7 @@ int cache_construct ( cache **const pp_cache, size_t size )
     }
 }
 
+/*
 int hash_table_construct ( hash_table **const pp_hash_table, size_t size )
 {
 
@@ -570,7 +611,7 @@ int hash_table_destroy ( hash_table **const pp_hash_table, fn_hash_cache_free *p
         }
     }
 }
-
+*/
 
 void hash_cache_exit ( void )
 {
