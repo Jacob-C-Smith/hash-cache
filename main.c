@@ -25,6 +25,16 @@ enum hash_cache_examples_e
     HASH_CACHE_EXAMPLES_QUANTITY  = 3
 };
 
+// Structure definitions
+struct word_frequency_s
+{
+    char   _word[16];
+    size_t frequency;
+};
+
+// Type definitions
+typedef struct word_frequency_s word_frequency;
+
 // Forward declarations
 /** !
  * Print a usage message to standard out
@@ -75,6 +85,28 @@ int hash_cache_cache_example ( int argc, const char *argv[] );
  * @return 1 on success, 0 on error
  */
 int hash_cache_hash_table_example ( int argc, const char *argv[] );
+
+/** !
+ * Get the key from a word frequency struct
+ * 
+ * @param p_word_frequency pointer to the word frequency struct
+ * 
+ * @return 1 on success, 0 on error
+ */
+char *hash_cache_word_frequency_key_get ( const word_frequency *const p_word_frequency );
+
+/** !
+ * Print a word frequency struct to standard out
+ * 
+ * @param p_word_frequency pointer to word frequency struct
+ * @param i                control variable
+ * 
+ * @return 1 on success, 0 on error
+ */
+int hash_cache_word_frequency_print_i ( const word_frequency *const p_word_frequency, size_t i );
+
+// Data
+size_t total_words = 0;
 
 // Entry point
 int main ( int argc, const char *argv[] )
@@ -262,7 +294,6 @@ int hash_cache_hash_example ( int argc, const char *argv[] )
     printf("fvn64(\"%s\") = 0x%016llX\n", _string, fvn64);
     printf("mmh64(\"%s\") = 0x%016llX\n", _string, mmh64);
     printf("xxh64(\"%s\") = 0x%016llX\n", _string, xxh64);
-    
 
     // Formatting
     putchar('\n');
@@ -286,14 +317,68 @@ int hash_cache_cache_example ( int argc, const char *argv[] )
         "╭───────────────╮\n"\
         "│ cache example │\n"\
         "╰───────────────╯\n"\
-        "In this example [TODO] \n\n"\
+        "In this example, a plain text file is read word by word. Each word is inserted \n"\
+        "into a cache. The cache can hold 100 entries total. The file contains 169 unique\n"\
+        "words, and 1,000,000 total words. After each word has been inserted, some cache\n"\
+        "statistics are printed to standard out.\n\n"
     );
 
     // Initialized data
     cache *p_cache = (void *) 0;
+    FILE  *p_file  = fopen("lorem_ipsum.txt", "r");
+
+    // Error check
+    if ( p_file == (void *) 0 ) goto failed_to_open_lorem_ipsum;
 
     // Construct the cache
-    if ( cache_construct(&p_cache, 64) == 0 ) goto failed_to_construct_cache;
+    if ( cache_construct(&p_cache, 1000, (fn_cache_equality *)strcmp, (fn_cache_key_getter *)hash_cache_word_frequency_key_get) == 0 ) goto failed_to_construct_cache;
+
+    // Read each word
+    while ( feof(p_file) == false )
+    {
+
+        // Initialized data
+        char _word[16] = { 0 };
+        word_frequency *p_word_frequency = (void *) 0;
+
+        // Read the word
+        fscanf(p_file, "%s ", &_word);
+
+        // Search the cache
+        cache_get(p_cache, _word, &p_word_frequency);
+
+        // Hit
+        if ( p_word_frequency )
+            
+            // Increment the frequency
+            p_word_frequency->frequency++;
+        
+        // Miss
+        else
+        {
+            
+            // Allocate memory for the cache entry
+            p_word_frequency = malloc(sizeof(word_frequency));
+
+            // Initialize the frequency
+            p_word_frequency->frequency = 1;
+
+            // Copy the word
+            strncpy(p_word_frequency->_word, _word, 15);
+
+            // Insert the word into the cache
+            cache_insert(p_cache, p_word_frequency->_word, p_word_frequency);
+        }
+    }
+
+    // Formatting
+    printf("| Count        | Word  |\n|--------------|-------|\n");
+
+    // Print cache statistics
+    cache_for_i(p_cache, (fn_cache_property_i *) hash_cache_word_frequency_print_i);
+
+    // Formatting
+    printf("\nFor a total of %zu words\n", total_words);
 
     // Success
     return EXIT_SUCCESS;
@@ -311,7 +396,32 @@ int hash_cache_cache_example ( int argc, const char *argv[] )
                 // Error
                 return 0;
         }
+
+        // Standard library errors
+        {
+            failed_to_open_lorem_ipsum:
+                #ifndef NDEBUG
+                    log_error("[hash cache] [cache] Failed to open \"lorem_ipsum.txt\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_info("Have you extracted \"lorem_ipsum.txt\" to the \"build\" directory?\n");
+                #endif
+            
+                // Error
+                return 0;
+        }
     }
+}
+
+int hash_cache_word_frequency_print_i ( const word_frequency *const p_word_frequency, size_t i )
+{
+
+    // Print the word frequency struct to standard out
+    printf("| %-12s | %5zu |\n", p_word_frequency->_word, p_word_frequency->frequency);
+
+    // Accumulate total words
+    total_words += p_word_frequency->frequency;
+
+    // Success
+    return 1;
 }
 
 int hash_cache_hash_table_example ( int argc, const char *argv[] )
@@ -354,3 +464,29 @@ int hash_cache_hash_table_example ( int argc, const char *argv[] )
         }
     }
 }
+
+char *hash_cache_word_frequency_key_get ( const word_frequency *const p_word_frequency )
+{
+
+    // Argument check
+    if ( p_word_frequency == (void *) 0 ) goto no_word_frequency;
+
+    // Success
+    return ((word_frequency *)p_word_frequency)->_word;
+
+    // Error handling
+    {
+
+        // Argument errors
+        {
+            no_word_frequency:
+                #ifndef NDEBUG
+                    log_error("[hash cache] [cache] Null pointer provided for parameter \"p_word_frequency\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // Error
+                return 0;
+        }
+    }
+}
+
