@@ -2,7 +2,7 @@ name: hash-cache
 
 on:
   push:
-    branches: [ "main", "hash-table-and-cache" ]
+    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
@@ -37,6 +37,6 @@ jobs:
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: |
         unzip ../lorem_ipsum.zip
-        cat lorem_ipsum.txt | tr -s ' ' '\n' | sort | uniq 
-        echo "[hash cache] Tester not yet implemented" #${{github.workspace}}/build/hash_table_test
+        echo "[hash cache] Tester not yet implemented" #${{github.workspace}}/build/hash_cache_test
+        ${{github.workspace}}/build/hash_cache_example
 
