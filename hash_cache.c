@@ -555,17 +555,20 @@ int cache_get ( const cache *const p_cache, const void *const p_key, void **cons
     if ( p_key   == (void *) 0 ) goto no_key;
 
     // Search the cache
-    for (size_t i = 0; i < p_cache->entries; i++)
+    for (size_t i = 0; i < p_cache->properties.count; i++)
     {
         
         // Compare
-        if ( p_cache->pfn_equals(p_cache->pfn_key(p_cache->data[i]), p_key ) )
+        if ( p_cache->pfn_equality(p_cache->pfn_key_get(p_cache->properties.pp_data[i]), p_key ) == 0 )
         {
 
             // Move the property to the front of the cache 
+            void *tmp = p_cache->properties.pp_data[i];
+            p_cache->properties.pp_data[i] = p_cache->properties.pp_data[0];
+            p_cache->properties.pp_data[0] = tmp;
 
             // Return the value to the caller 
-            *pp_result = p_cache->data[i];
+            *pp_result = tmp;
 
             // Success
             return 1;
@@ -637,7 +640,7 @@ int hash_table_search ( const hash_table *const p_hash_table, const void *const 
     }
 }
 
-int cache_add ( cache *const p_cache, const void *const p_key, const void *const p_value )
+int cache_insert ( cache *const p_cache, const void *const p_key, const void *const p_value )
 {
 
     // Argument check
@@ -646,16 +649,21 @@ int cache_add ( cache *const p_cache, const void *const p_key, const void *const
     if ( p_value == (void *) 0 ) goto no_value;
 
     // If the cache is full ...
-    if ( p_cache->entries == p_cache->max )
+    if ( p_cache->properties.count == p_cache->properties.max )
     {
         
         // ... remove the last object in the cache ...
+        //
+
         // ... and decrement the quantity of entries
+        p_cache->properties.count--;
     }
 
     // Add the object to the cache
+    p_cache->properties.pp_data[p_cache->properties.count] = p_value;
 
     // Increment the quantity of entries
+    p_cache->properties.count++;
 
     // Success
     return 1;
@@ -676,6 +684,14 @@ int cache_add ( cache *const p_cache, const void *const p_key, const void *const
             no_key:
                 #ifndef NDEBUG
                     log_error("[hash cache] Null pointer provided for parameter \"p_key\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // Error
+                return 0;
+
+            no_value:
+                #ifndef NDEBUG
+                    log_error("[hash cache] Null pointer provided for parameter \"p_value\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // Error
@@ -786,14 +802,23 @@ int cache_remove ( cache *const p_cache, const void *const p_key, void **const p
     }
 }
 
-int cache_clear ( cache *p_cache )
+int cache_clear ( cache *p_cache, fn_cache_free *pfn_cache_free )
 {
 
     // Argument check
     if ( p_cache == (void *) 0 ) goto no_cache;
 
+    // Free each property
+    if ( pfn_cache_free )
+        
+        // Iterate through the contents of the cache
+        for (size_t i = 0; i < p_cache->properties.count; i++)
+        
+            // Free the property
+            pfn_cache_free(p_cache->properties.pp_data[i]);
+
     // Clear the property counter
-    p_cache->entries = 0;
+    p_cache->properties.count = 0;
 
     // Success
     return 1;
@@ -806,6 +831,46 @@ int cache_clear ( cache *p_cache )
             no_cache:
                 #ifndef NDEBUG
                     log_error("[hash cache] Null pointer provided for parameter \"p_cache\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // Error
+                return 0;
+        }
+    }
+}
+
+int cache_for_i ( const cache *const p_cache, fn_cache_property_i pfn_function )
+{
+    
+    // Argument check
+    if ( p_cache      == (void *) 0 ) goto no_cache;
+    if ( pfn_function == (void *) 0 ) goto no_function;
+
+    // Iterate through the cache
+    for (size_t i = 0; i < p_cache->properties.count; i++)
+
+        // Call the function
+        pfn_function(p_cache->properties.pp_data[i], i);        
+
+    // Success
+    return 1;
+
+    // Error handling
+    {
+
+        // Argument errors
+        {
+            no_cache:
+                #ifndef NDEBUG
+                    log_error("[hash cache] Null pointer provided for parameter \"p_cache\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // Error
+                return 0;
+
+            no_function:
+                #ifndef NDEBUG
+                    log_error("[hash cache] Null pointer provided for parameter \"pfn_function\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // Error

@@ -172,7 +172,41 @@ DLLEXPORT int cache_construct (
  * 
  * @return 1 on success, 0 on error
  */
+DLLEXPORT int cache_get ( const cache *const p_cache, const void *const p_key, void **const pp_result );
 
+// Mutators
+/** !
+ * Add a property to a cache
+ * 
+ * @param p_cache the cache
+ * @param p_key   the key of the property
+ * @param p_value the value of the property
+ * 
+ * @return 1 on success, 0 on error
+ */
+DLLEXPORT int cache_insert ( cache *const p_cache, const void *const p_key, const void *const p_value );
+
+
+/** !
+ * Clear the cache of all properties
+ * 
+ * @param p_cache        the cache
+ * @param pfn_cache_free the property deallocator if not null pointer else nothing 
+ * 
+ * @return 1 on success, 0 on error
+ */
+DLLEXPORT int cache_clear ( cache *p_cache, fn_cache_free *pfn_cache_free );
+
+// Iterators
+/** !
+ * Call a function on each element of the cache
+ * 
+ * @param p_cache      the cache
+ * @param pfn_function pointer to the function
+ * 
+ * @return 1 on success, 0 on error
+ */
+DLLEXPORT int cache_for_i ( const cache *const p_cache, fn_cache_property_i pfn_function );
 
 // Destructors
 /** !
