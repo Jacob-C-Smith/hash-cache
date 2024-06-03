@@ -15,6 +15,9 @@
 
 // hash cache
 #include <hash_cache/hash_cache.h>
+#include <hash_cache/hash.h>
+#include <hash_cache/cache.h>
+#include <hash_cache/hash_table.h>
 
 // Enumeration definitions
 enum hash_cache_examples_e
@@ -331,7 +334,7 @@ int hash_cache_cache_example ( int argc, const char *argv[] )
     if ( p_file == (void *) 0 ) goto failed_to_open_lorem_ipsum;
 
     // Construct the cache
-    if ( cache_construct(&p_cache, 1000, (fn_cache_equality *)strcmp, (fn_cache_key_getter *)hash_cache_word_frequency_key_get) == 0 ) goto failed_to_construct_cache;
+    if ( cache_construct(&p_cache, 1000, (fn_hash_cache_equality *)strcmp, (fn_hash_cache_key_getter *)hash_cache_word_frequency_key_get) == 0 ) goto failed_to_construct_cache;
 
     // Read each word
     while ( feof(p_file) == false )
@@ -375,7 +378,7 @@ int hash_cache_cache_example ( int argc, const char *argv[] )
     printf("| Count        | Word  |\n|--------------|-------|\n");
 
     // Print cache statistics
-    cache_for_i(p_cache, (fn_cache_property_i *) hash_cache_word_frequency_print_i);
+    cache_for_i(p_cache, (fn_hash_cache_property_i *) hash_cache_word_frequency_print_i);
 
     // Formatting
     printf("\nFor a total of %zu words\n", total_words);
@@ -411,22 +414,10 @@ int hash_cache_cache_example ( int argc, const char *argv[] )
     }
 }
 
-int hash_cache_word_frequency_print_i ( const word_frequency *const p_word_frequency, size_t i )
-{
-
-    // Print the word frequency struct to standard out
-    printf("| %-12s | %5zu |\n", p_word_frequency->_word, p_word_frequency->frequency);
-
-    // Accumulate total words
-    total_words += p_word_frequency->frequency;
-
-    // Success
-    return 1;
-}
-
 int hash_cache_hash_table_example ( int argc, const char *argv[] )
 {
-// Supress warnings
+    
+    // Supress warnings
     (void) argc;
     (void) argv;
 
@@ -439,10 +430,12 @@ int hash_cache_hash_table_example ( int argc, const char *argv[] )
     );
 
     // Initialized data
-    //
+    hash_table *p_hash_table = (void *) 0;
 
     // Construct the hash table
     //
+
+    // 
 
     // Success
     return EXIT_SUCCESS;
@@ -463,6 +456,19 @@ int hash_cache_hash_table_example ( int argc, const char *argv[] )
             */
         }
     }
+}
+
+int hash_cache_word_frequency_print_i ( const word_frequency *const p_word_frequency, size_t i )
+{
+
+    // Print the word frequency struct to standard out
+    printf("| %-12s | %5zu |\n", p_word_frequency->_word, p_word_frequency->frequency);
+
+    // Accumulate total words
+    total_words += p_word_frequency->frequency;
+
+    // Success
+    return 1;
 }
 
 char *hash_cache_word_frequency_key_get ( const word_frequency *const p_word_frequency )
@@ -489,4 +495,3 @@ char *hash_cache_word_frequency_key_get ( const word_frequency *const p_word_fre
         }
     }
 }
-

@@ -2,14 +2,12 @@
  * Header for hash table library
  * 
  * @file hash_table/hash_table.h 
- * @date Feb 18, 2024
+ *
  * @author Jacob Smith
  */
 
 // Include guard
 #pragma once
-
-#undef NDEBUG
 
 // Standard library
 #include <stdio.h>
@@ -17,20 +15,11 @@
 #include <stdbool.h>
 #include <string.h>
 
-// sync submodule
+// sync module
 #include <sync/sync.h>
 
-// Platform dependent macros
-#ifdef _WIN64
-#define DLLEXPORT extern __declspec(dllexport)
-#else
-#define DLLEXPORT
-#endif
-
-// Memory management macro
-#ifndef HASH_TABLE_REALLOC
-#define HASH_TABLE_REALLOC(p, sz) realloc(p,sz)
-#endif
+// log module
+#include <log/log.h>
 
 // Forward declarations
 struct hash_table_s;
