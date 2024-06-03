@@ -184,6 +184,16 @@ DLLEXPORT int cache_get ( const cache *const p_cache, const void *const p_key, v
  */
 DLLEXPORT int cache_insert ( cache *const p_cache, const void *const p_key, const void *const p_value );
 
+/** !
+ * Remove a property from the cache
+ * 
+ * @param p_cache   the cache
+ * @param p_key     the key of the property
+ * @param pp_result return if not null pointer else value is discarded
+ * 
+ * @return 1 on success, 0 on error
+ */
+DLLEXPORT int cache_remove ( cache *const p_cache, const void *const p_key, void **const pp_result );
 
 /** !
  * Clear the cache of all properties
