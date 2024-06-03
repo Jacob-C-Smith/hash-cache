@@ -24,6 +24,16 @@ static unsigned long long crc64_table[256] = { 0 };
  */
 unsigned long long rotl64 ( unsigned long long x, signed char r );
 
+/** !
+ * Default comparator
+ * 
+ * @param p_a A
+ * @param p_b B
+ * 
+ * @return 0 if A == B else 1
+ */
+int cache_equals ( const void *const p_a, const void *p_b );
+
 void hash_cache_init ( void )
 {
 
@@ -410,14 +420,44 @@ int hash_table_create ( hash_table **const pp_hash_table )
     }
 }
 
-int cache_construct ( cache **const pp_cache, size_t size )
+int cache_construct (
+    cache               **const pp_cache,
+    size_t                      size,
+    fn_cache_equality          *pfn_equality,
+    fn_cache_key_getter        *pfn_key_get
+)
 {
 
     // Argument check
     if ( pp_cache == (void *) 0 ) goto no_cache;
     if ( size     ==          0 ) goto invalid_size;
 
+    // Initialized data
+    cache *p_cache = (void *) 0;
 
+    // Allocate memory for the cache
+    if ( cache_create(&p_cache) == 0 ) goto failed_to_allocate_cache;
+
+    // Cache starts empty
+    p_cache->properties.count = 0;
+
+    // Store the size
+    p_cache->properties.max = size;
+
+    // Set the equality function
+    p_cache->pfn_equality = pfn_equality ? pfn_equality : cache_equals;
+
+    // Set the key getter function
+    p_cache->pfn_key_get = pfn_key_get ? pfn_key_get : cache_equals;
+
+    // Allocate memory for the cache
+    p_cache->properties.pp_data = HASH_CACHE_REALLOC(0, sizeof(void *) * size);
+
+    // Error check
+    if ( p_cache->properties.pp_data == (void *) 0 ) goto no_mem;
+
+    // Return a pointer to the caller
+    *pp_cache = p_cache;
 
     // Success
     return 1;
@@ -442,7 +482,28 @@ int cache_construct ( cache **const pp_cache, size_t size )
 
                 // Error
                 return 0;
-                
+        }
+
+        // Hash cache errors
+        {
+            failed_to_allocate_cache:
+                #ifndef NDEBUG
+                    log_error("[hash cache] Failed to allocate caches in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // Error
+                return 0;
+        }
+
+        // Standard library errors
+        {
+            no_mem:
+                #ifndef NDEBUG
+                    log_error("[hash cache] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // Error
+                return 0;
         }
     }
 }
@@ -484,6 +545,7 @@ int hash_table_construct ( hash_table **const pp_hash_table, size_t size )
         }
     }
 }
+*/
 
 int cache_get ( const cache *const p_cache, const void *const p_key, void **const pp_result )
 {
@@ -758,8 +820,52 @@ int cache_destroy ( cache **const pp_cache, fn_cache_free *pfn_cache_free )
     // Argument check
     if ( pp_cache == (void *) 0 ) goto no_cache; 
 
+    // Initialized data
+    cache *p_cache = *pp_cache;
+
+    // No more pointer for caller
+    *pp_cache = (void *) 0;
+
+    // Clear the cache
+    cache_clear(p_cache, pfn_cache_free);
+
+    // Free the cache contents
+    if ( HASH_CACHE_REALLOC(p_cache->properties.pp_data, 0) ) goto failed_to_free;
+
+    // Free the cache
+    if ( HASH_CACHE_REALLOC(p_cache, 0) ) goto failed_to_free;
+
+    // Success
+    return 1;
+
+    // Error handling
+    {
+
+        // Argument errors
+        {
+            no_cache:
+                #ifndef NDEBUG
+                    log_error("[hash cache] Null pointer provided for parameter \"p_cache\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // Error
+                return 0;
+        }
+
+        // Standard library errors
+        {
+            failed_to_free:
+                #ifndef NDEBUG
+                    log_error("[standard library] Failed to free memory in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // Error
+                return 0;
+        }
+    }
 }
 
+/*
 int hash_table_destroy ( hash_table **const pp_hash_table, fn_hash_cache_free *pfn_free )
 {
 
@@ -813,3 +919,12 @@ unsigned long long rotl64 ( unsigned long long x, signed char r )
     // Success
     return (x << r) | (x >> (64 - r));
 }
+
+int cache_equals ( const void *const p_a, const void *p_b )
+{
+
+    // Done
+    return ( p_a == p_b ) ? 0 : 1;
+}
+
+
