@@ -66,9 +66,7 @@ struct hash_table_s
         size_t   max;
         void   **pp_data;
     } entries;
-
-    size_t key_size;
-    // TODO: Equality function
+    fn_hash_table_equality *pfn_equality;
 };
 
 // Function declarations 

@@ -602,6 +602,7 @@ int cache_get ( const cache *const p_cache, const void *const p_key, void **cons
     }
 }
 
+/*
 int hash_table_search ( const hash_table *const p_hash_table, const void *const p_key )
 {
 
@@ -639,6 +640,7 @@ int hash_table_search ( const hash_table *const p_hash_table, const void *const 
         }
     }
 }
+*/
 
 int cache_insert ( cache *const p_cache, const void *const p_key, const void *const p_value )
 {
@@ -700,6 +702,7 @@ int cache_insert ( cache *const p_cache, const void *const p_key, const void *co
     }
 }
 
+/*
 int hash_table_insert ( const hash_table *const p_hash_table, const void *const p_key )
 {
 
@@ -735,6 +738,7 @@ int hash_table_insert ( const hash_table *const p_hash_table, const void *const 
         }
     }
 }
+*/
 
 int cache_remove ( cache *const p_cache, const void *const p_key, void **const pp_result )
 {
@@ -742,7 +746,8 @@ int cache_remove ( cache *const p_cache, const void *const p_key, void **const p
     // Argument check
     if ( p_cache == (void *) 0 ) goto no_cache;
     if ( p_key   == (void *) 0 ) goto no_key;
-
+    
+    /*
     // Initialized data
     size_t i = 0;
     void *p_value = (void *) 0;
@@ -773,7 +778,7 @@ int cache_remove ( cache *const p_cache, const void *const p_key, void **const p
 
         // Success
         return 1;
-    }
+    }*/
 
     // Miss
     return 0;
