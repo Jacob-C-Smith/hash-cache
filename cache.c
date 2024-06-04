@@ -404,6 +404,46 @@ int cache_for_i ( const cache *const p_cache, fn_hash_cache_property_i pfn_funct
     }
 }
 
+int cache_for_each ( const cache *const p_cache, fn_hash_cache_property pfn_function )
+{
+    
+    // Argument check
+    if ( p_cache      == (void *) 0 ) goto no_cache;
+    if ( pfn_function == (void *) 0 ) goto no_function;
+
+    // Iterate through the cache
+    for (size_t i = 0; i < p_cache->properties.count; i++)
+
+        // Call the function
+        pfn_function(p_cache->properties.pp_data[i]);
+
+    // Success
+    return 1;
+
+    // Error handling
+    {
+
+        // Argument errors
+        {
+            no_cache:
+                #ifndef NDEBUG
+                    log_error("[hash cache] Null pointer provided for parameter \"p_cache\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // Error
+                return 0;
+
+            no_function:
+                #ifndef NDEBUG
+                    log_error("[hash cache] Null pointer provided for parameter \"pfn_function\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // Error
+                return 0;
+        }
+    }
+}
+
 int cache_destroy ( cache **const pp_cache, fn_hash_cache_free *pfn_cache_free )
 {
 

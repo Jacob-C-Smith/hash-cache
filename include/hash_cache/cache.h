@@ -71,17 +71,16 @@ DLLEXPORT int cache_create ( cache **const pp_cache );
  * 
  * @param pp_cache        result
  * @param size            the maximum quantity of properties the cache can fit
- * @param eviction_policy the eviction policy of the cache. < LRU | MRU | LFU | FIFO | TTL >
  * @param pfn_equality    pointer to a equality function, or 0 for default
  * @param pfn_key_get     pointer to a key getter, or 0 for key == value
  * 
  * @return 1 on success, 0 on error
  */
 DLLEXPORT int cache_construct (
-    cache               **const pp_cache,
-    size_t                      size,
-    fn_hash_cache_equality          *pfn_equality,
-    fn_hash_cache_key_getter        *pfn_key_get
+    cache               **const  pp_cache,
+    size_t                       size,
+    fn_hash_cache_equality      *pfn_equality,
+    fn_hash_cache_key_getter    *pfn_key_get
 );
 
 // Accessors
@@ -139,6 +138,16 @@ DLLEXPORT int cache_clear ( cache *p_cache, fn_hash_cache_free *pfn_free );
  * @return 1 on success, 0 on error
  */
 DLLEXPORT int cache_for_i ( const cache *const p_cache, fn_hash_cache_property_i pfn_function );
+
+/** !
+ * Call a function on each element of the cache
+ * 
+ * @param p_cache      the cache
+ * @param pfn_function pointer to the function
+ * 
+ * @return 1 on success, 0 on error
+ */
+DLLEXPORT int cache_for_each ( const cache *const p_cache, fn_hash_cache_property pfn_function );
 
 // Destructors
 /** !
