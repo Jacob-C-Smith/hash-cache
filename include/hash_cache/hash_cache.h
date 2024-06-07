@@ -35,6 +35,7 @@
 typedef unsigned long long hash64;
 
 typedef hash64 (fn_hash64)                ( const void *const k, size_t l );
+typedef hash64 (fn_hash_cache_hash_index) ( const void *const k, size_t l, size_t i );
 typedef int    (fn_hash_cache_equality)   ( const void *const p_a, const void *const p_b );
 typedef void  *(fn_hash_cache_key_getter) ( const void *const p_value );
 typedef void   (fn_hash_cache_free)       ( void *p_property );
