@@ -9,7 +9,7 @@
  * 
  * @return true if prime else false
  */
-bool hash_table_is_prime ( int n );
+bool hash_table_is_prime ( size_t n );
 
 /** !
  * Generate a twin prime within a range
@@ -89,6 +89,9 @@ int hash_table_construct ( hash_table **const pp_hash_table, size_t size )
     // Initialized data
     hash_table *p_hash_table = (void *) 0;
 
+    // Unused
+    (void)size;
+
     // Allocate memory for a hash table
     if ( hash_table_create(&p_hash_table) == 0 ) goto failed_to_allocate_hash_table;
 
@@ -122,16 +125,16 @@ int hash_table_construct ( hash_table **const pp_hash_table, size_t size )
                 return 0;
         }
 
-        // Standard library errors
-        {
-            no_mem:
-                #ifndef NDEBUG
-                    log_error("[hash cache] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
-                #endif
+        // // Standard library errors
+        // {
+        //     no_mem:
+        //         #ifndef NDEBUG
+        //             log_error("[hash cache] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+        //         #endif
 
-                // Error
-                return 0;
-        }
+        //         // Error
+        //         return 0;
+        // }
     }
 }
 
@@ -328,6 +331,9 @@ int hash_table_clear ( hash_table *p_hash_table, fn_hash_cache_free *pfn_free )
     // Argument check
     if ( p_hash_table == (void *) 0 ) goto no_hash_table;
 
+    // Unused
+    (void) pfn_free;
+
     // Success
     return 1;
 
@@ -353,6 +359,9 @@ int hash_table_destroy ( hash_table **const pp_hash_table, fn_hash_cache_free *p
     // Argument check
     if ( pp_hash_table == (void *) 0 ) goto no_hash_table;
 
+    // Unused
+    (void) pfn_free;
+
     // Success
     return 1;
 
@@ -372,7 +381,7 @@ int hash_table_destroy ( hash_table **const pp_hash_table, fn_hash_cache_free *p
     }
 }
 
-bool hash_table_is_prime ( int n )
+bool hash_table_is_prime ( size_t n )
 {
 
     // Iterate from 2 to the upper bound
@@ -390,9 +399,6 @@ bool hash_table_is_prime ( int n )
 
 size_t hash_table_generate_twin_prime ( size_t start, size_t end )
 {
-
-    // Initialized data
-    size_t j = 0;
 
     // Iterate through the range
     for (size_t i = start; i < end; i++)

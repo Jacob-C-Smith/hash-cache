@@ -82,10 +82,10 @@ int cache_construct (
     p_cache->properties.max = size;
 
     // Set the equality function
-    p_cache->pfn_equality = pfn_equality ? pfn_equality : hash_cache_equals;
+    p_cache->pfn_equality = pfn_equality ? pfn_equality : (fn_hash_cache_equality *) hash_cache_equals;
 
     // Set the key getter function
-    p_cache->pfn_key_get = pfn_key_get ? pfn_key_get : hash_cache_equals;
+    p_cache->pfn_key_get = pfn_key_get ? pfn_key_get : (fn_hash_cache_key_getter *) hash_cache_equals;
 
     // Allocate memory for the cache
     p_cache->properties.pp_data = HASH_CACHE_REALLOC(0, sizeof(void *) * size);
@@ -220,7 +220,7 @@ int cache_insert ( cache *const p_cache, const void *const p_key, const void *co
     }
 
     // Add the object to the cache
-    p_cache->properties.pp_data[p_cache->properties.count] = p_value;
+    p_cache->properties.pp_data[p_cache->properties.count] = (void *) p_value;
 
     // Increment the quantity of entries
     p_cache->properties.count++;
@@ -267,6 +267,9 @@ int cache_remove ( cache *const p_cache, const void *const p_key, void **const p
     if ( p_cache == (void *) 0 ) goto no_cache;
     if ( p_key   == (void *) 0 ) goto no_key;
     
+    // Unused
+    (void) pp_result;
+
     /*
     // Initialized data
     size_t i = 0;
