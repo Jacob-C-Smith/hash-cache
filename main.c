@@ -348,7 +348,7 @@ int hash_cache_cache_example ( int argc, const char *argv[] )
         fscanf(p_file, "%s ", &_word);
 
         // Search the cache
-        cache_get(p_cache, _word, &p_word_frequency);
+        cache_get(p_cache, _word, (void **)&p_word_frequency);
 
         // Hit
         if ( p_word_frequency )
