@@ -2,7 +2,7 @@
  * A tool for creating optimally small 
  * hash tables without collisions
  * 
- * @file hash_table_optimizer.c
+ * @file hash_optimizer.c
  * 
  * @author Jacob Smith
  */
@@ -78,12 +78,13 @@ int main ( int argc, const char *argv[] )
 {
     
     // Initialized data
-    size_t entry_quantity = 0, entry_max = 1;
-    size_t hash_table_test_size = 0;
+    size_t entry_quantity = 0,
+           entry_max = 1,
+           hash_table_test_size = 0;
     char _buffer[HASH_TABLE_OPTIMIZER_BUFFER_LENGTH_MAX] = { 0 };
-    quasi_hash_table_property **pp_properties = realloc(0, sizeof(void *) * entry_max);
-    fn_hash64 *pfn_hashing_function = (void *) 0;
     quasi_hash_table *p_quasi_hash_table = (void *) 0;
+    fn_hash64 *pfn_hashing_function = (void *) 0;
+    quasi_hash_table_property **pp_properties = HASH_CACHE_REALLOC(0, sizeof(void *) * entry_max);
     
     // Error check
     if ( pp_properties == (void *) 0 ) goto failed_to_realloc;
@@ -110,7 +111,7 @@ int main ( int argc, const char *argv[] )
             entry_max *= 2;
 
             // Grow the allocation
-            pp_properties = realloc(pp_properties, sizeof(quasi_hash_table_property *) * entry_max);
+            pp_properties = HASH_CACHE_REALLOC(pp_properties, sizeof(quasi_hash_table_property *) * entry_max);
 
             // Error check 
             if ( pp_properties == (void *) 0 ) goto failed_to_realloc; 
@@ -120,7 +121,7 @@ int main ( int argc, const char *argv[] )
         len = strlen(_buffer);
 
         // Allocate memory for the entry
-        p_string = realloc(0, sizeof(quasi_hash_table_property) + len * sizeof(char));
+        p_string = HASH_CACHE_REALLOC(0, sizeof(quasi_hash_table_property) + len * sizeof(char));
 
         // Error check
         if ( p_string == (void *) 0 ) goto failed_to_realloc;
@@ -144,15 +145,20 @@ int main ( int argc, const char *argv[] )
     // Store the entry quantity
     hash_table_test_size = entry_quantity;
     
+    // Initial allocation
     p_quasi_hash_table = HASH_CACHE_REALLOC(0, sizeof(struct quasi_hash_table_s));
 
-    while (1)
+    // Until all the properties fit without collisions ...
+    while ( true )
     {
 
+        // Grow the allocation
         p_quasi_hash_table = HASH_CACHE_REALLOC(p_quasi_hash_table, sizeof(struct quasi_hash_table_s) + sizeof(struct quasi_hash_table_entry_s) * hash_table_test_size);
 
+        // Clear out old results
         memset(p_quasi_hash_table, 0, sizeof(struct quasi_hash_table_s) + sizeof(struct quasi_hash_table_entry_s) * hash_table_test_size);
 
+        // Store the length of the hash table on this iteration
         p_quasi_hash_table->len = hash_table_test_size;
 
         for (size_t i = 0; i < entry_quantity; i++)
@@ -170,45 +176,72 @@ int main ( int argc, const char *argv[] )
             
             // Set the occupied flag
             p_quasi_hash_table->data[index].occupied = true;
-            p_quasi_hash_table->data[index].value    = (char *) &pp_properties[i]->_text;
             
+            // Store a pointer to this property
+            p_quasi_hash_table->data[index].value = (char *) &pp_properties[i]->_text;
         }
 
-        // We done
+        // Done
         break;
 
         try_again:
-        
+
             // ... with a larger table
             hash_table_test_size++;
 
             continue;
     }
     
-    printf("[%zu] = {", p_quasi_hash_table->len);
-
-    if ( p_quasi_hash_table->data[0].occupied )
-        printf("\"%s\"", p_quasi_hash_table->data[0].value);
-    else
-        printf("(const char *) 0");
-
-    for (size_t i = 1; i < p_quasi_hash_table->len; i++)
+    // Write the hash table to standard out as an array of C strings 
     {
-        if ( p_quasi_hash_table->data[i].occupied )
-            printf(",\"%s\"", p_quasi_hash_table->data[i].value);
+
+        // Formatting
+        printf("[%zu] = {", p_quasi_hash_table->len);
+
+        // If this entry contains a value ...
+        if ( p_quasi_hash_table->data[0].occupied )
+
+            // ... print the value as a string ...
+            printf("\"%s\"", p_quasi_hash_table->data[0].value);
+
+        // ... otherwise ...
         else
-            printf(",(const char *) 0");
+            
+            // ... null pointer
+            printf("(const char *) 0");
+
+        // Iterate through the rest of the hash table
+        for (size_t i = 1; i < p_quasi_hash_table->len; i++)
+        {
+
+            // If this entry contains a value ...
+            if ( p_quasi_hash_table->data[i].occupied )
+            
+                // ... print the value as a string ...
+                printf(",\"%s\"", p_quasi_hash_table->data[i].value);
+            
+            // ... otherwise ...
+            else
+
+                // ... null pointer
+                printf(",(const char *) 0");
+        }
+
+        // Formatting
+        printf("};\n");
     }
 
-    printf("};\n");
-
-    // Clean up
+    // Clean up each property
     for (size_t i = 0; i < entry_quantity; i++)
 
-        // Release 
-        pp_properties[i] = realloc(pp_properties[i], 0);
+        // Release each property 
+        pp_properties[i] = HASH_CACHE_REALLOC(pp_properties[i], 0);
     
-    pp_properties = realloc(pp_properties, 0);
+    // Release the property list
+    pp_properties = HASH_CACHE_REALLOC(pp_properties, 0);
+
+    // Release the hash table
+    p_quasi_hash_table = HASH_CACHE_REALLOC(p_quasi_hash_table, 0);
 
     // Success
     return EXIT_SUCCESS;
@@ -219,6 +252,11 @@ int main ( int argc, const char *argv[] )
         // Standard library errors
         {
             failed_to_realloc:
+                #ifndef NDEBUG
+                    log_error("[hash-cache] [hash-optimal] Call to \"realloc\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // Error
                 return EXIT_FAILURE;
         }
     }
