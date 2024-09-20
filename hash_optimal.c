@@ -19,6 +19,7 @@
 
 // Preprocessor definitions
 #define HASH_TABLE_OPTIMIZER_BUFFER_LENGTH_MAX 4095+1
+//#define HASH_TABLE_OPTIMIZER_DISPLAY_MODE
 
 // Enumeration definitions
 enum hash_table_optimizer_hash_functions_e
@@ -148,6 +149,10 @@ int main ( int argc, const char *argv[] )
     // Initial allocation
     p_quasi_hash_table = HASH_CACHE_REALLOC(0, sizeof(struct quasi_hash_table_s));
 
+    #ifdef HASH_TABLE_OPTIMIZER_DISPLAY_MODE
+        printf("\r%d lines read\n\n", entry_quantity);
+    #endif
+
     // Until all the properties fit without collisions ...
     while ( true )
     {
@@ -181,6 +186,11 @@ int main ( int argc, const char *argv[] )
             p_quasi_hash_table->data[index].value = (char *) &pp_properties[i]->_text;
         }
 
+        // Display mode 
+        #ifdef HASH_TABLE_OPTIMIZER_DISPLAY_MODE
+            printf("\rNo collisions at size %d\n\n", hash_table_test_size);
+        #endif
+
         // Done
         break;
 
@@ -188,6 +198,13 @@ int main ( int argc, const char *argv[] )
 
             // ... with a larger table
             hash_table_test_size++;
+
+            // Display mode 
+            #ifdef HASH_TABLE_OPTIMIZER_DISPLAY_MODE
+                printf("\rCollisions at size %d", hash_table_test_size - 1);
+                fflush(stdout);
+                system("sleep 0.25");
+            #endif 
 
             continue;
     }
