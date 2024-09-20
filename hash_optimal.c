@@ -46,6 +46,7 @@ struct quasi_hash_table_s
 struct quasi_hash_table_property_s 
 {
     size_t  len;
+    hash64  hash;
     char    _text[];
 };
 
@@ -136,6 +137,9 @@ int main ( int argc, const char *argv[] )
         // Store the length of the string on the heap
         p_string->len = len - 1;
 
+        // Compute and store the hash
+        p_string->hash = pfn_hashing_function(&p_string->_text, p_string->len);
+
         // Add the entry to the buffer
         pp_properties[entry_quantity] = p_string;
 
@@ -170,8 +174,7 @@ int main ( int argc, const char *argv[] )
         {
             
             // Initialized data
-            hash64 hash  = pfn_hashing_function(&pp_properties[i]->_text, pp_properties[i]->len);
-            size_t index = hash % hash_table_test_size;
+            size_t index = pp_properties[i]->hash % hash_table_test_size;
 
             // Test if the bit is occupied
             if ( p_quasi_hash_table->data[index].occupied )
