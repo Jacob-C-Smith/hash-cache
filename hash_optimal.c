@@ -52,7 +52,6 @@ struct quasi_hash_table_property_s
 typedef struct quasi_hash_table_s          quasi_hash_table;
 typedef struct quasi_hash_table_property_s quasi_hash_table_property;
 
-
 // Forward declarations
 /** !
  * Print a usage message to standard out
@@ -101,7 +100,7 @@ int main ( int argc, const char *argv[] )
         quasi_hash_table_property *p_string = (void *) 0;
 
         // Read a string from standard in
-        if ( fgets(&_buffer, HASH_TABLE_OPTIMIZER_BUFFER_LENGTH_MAX, stdin) == 0 ) break;
+        if ( fgets(_buffer, HASH_TABLE_OPTIMIZER_BUFFER_LENGTH_MAX, stdin) == 0 ) break;
 
         // Resize?
         if ( entry_max == entry_quantity ) 
@@ -127,13 +126,13 @@ int main ( int argc, const char *argv[] )
         if ( p_string == (void *) 0 ) goto failed_to_realloc;
 
         // Copy the string from the stack to the heap
-        strncpy(&p_string->_text, _buffer, len-1);
+        strncpy((char *)p_string->_text, (char *)_buffer, len - 1);
 
         // Store a null terminator
         p_string->_text[len - 1] = '\0';
 
         // Store the length of the string on the heap
-        p_string->len = len;
+        p_string->len = len - 1;
 
         // Add the entry to the buffer
         pp_properties[entry_quantity] = p_string;
@@ -160,7 +159,7 @@ int main ( int argc, const char *argv[] )
         {
             
             // Initialized data
-            hash64 hash  = pfn_hashing_function(pp_properties[i]->_text, pp_properties[i]->len);
+            hash64 hash  = pfn_hashing_function(&pp_properties[i]->_text, pp_properties[i]->len);
             size_t index = hash % hash_table_test_size;
 
             // Test if the bit is occupied
@@ -171,7 +170,7 @@ int main ( int argc, const char *argv[] )
             
             // Set the occupied flag
             p_quasi_hash_table->data[index].occupied = true;
-            p_quasi_hash_table->data[index].value    = &pp_properties[i]->_text;
+            p_quasi_hash_table->data[index].value    = (char *) &pp_properties[i]->_text;
             
         }
 
@@ -186,7 +185,7 @@ int main ( int argc, const char *argv[] )
             continue;
     }
     
-    printf("const char *_p_hash_table[%d] = {", p_quasi_hash_table->len);
+    printf("[%zu] = {", p_quasi_hash_table->len);
 
     if ( p_quasi_hash_table->data[0].occupied )
         printf("\"%s\"", p_quasi_hash_table->data[0].value);
@@ -232,7 +231,10 @@ void print_usage ( const char *argv0 )
     if ( argv0 == (void *) 0 ) exit(EXIT_FAILURE);
 
     // Print a usage message to standard out
-    printf("Usage: %s [ crc | fnv | mmh ]\n", argv0);
+    printf("Usage: %s [ crc | fnv | mmh ]\n\n", argv0);
+    printf("    crc   Hash values with cyclic redundancy check\n");
+    printf("    fnv   Hash values with Fowler-Noll-Vo hash\n");
+    printf("    mmh   Hash values with MurMur hash\n");
 
     // Done
     return;
@@ -244,19 +246,19 @@ void parse_command_line_arguments ( int argc, const char *argv[], fn_hash64 **pp
     // If no command line arguments are supplied, run all the examples
     if ( argc != 2 ) goto invalid_arguments;
 
-    // CRC
+    // Cyclic Redundancy Check
     if ( strcmp(argv[1], "crc") == 0 )
         
         // Set the thread pool example flag
         *ppfn_hash_function = hash_crc64;
 
-    // Cache example?
+    // Fowler Noll Vo
     else if ( strcmp(argv[1], "fnv") == 0 )
 
         // Fowler-Noll-Vo
         *ppfn_hash_function = hash_fnv64;
     
-    // Hash table example?
+    // MurMur
     else if ( strcmp(argv[1], "mmh") == 0 )
 
         // MurMur
