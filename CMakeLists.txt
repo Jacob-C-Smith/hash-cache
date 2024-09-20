@@ -84,6 +84,12 @@ add_dependencies(hash_cache_example hash_cache log sync)
 target_include_directories(hash_cache_example PUBLIC ${HASH_CACHE_INCLUDE_DIR} ${SYNC_INCLUDE_DIR} ${LOG_INCLUDE_DIR})
 target_link_libraries(hash_cache_example hash_cache log sync)
 
+# Add source to this project's executable.
+add_executable (hash_optimal "hash_optimal.c")
+add_dependencies(hash_optimal hash_cache log sync)
+target_include_directories(hash_optimal PUBLIC ${HASH_CACHE_INCLUDE_DIR} ${SYNC_INCLUDE_DIR} ${LOG_INCLUDE_DIR})
+target_link_libraries(hash_optimal hash_cache log sync)
+
 # Add source to this project's library
 add_library (hash_cache SHARED "hash_cache.c" "hash.c" "cache.c" "hash_table.c")
 add_dependencies(hash_cache log sync)
