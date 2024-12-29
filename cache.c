@@ -21,7 +21,7 @@ int cache_create ( cache **const pp_cache )
     // Error check
     if ( p_cache == (void *) 0 ) goto no_mem;
 
-    // Zero set
+    // Initialize data
     memset(p_cache, 0, sizeof(cache));
 
     // Return a pointer to the caller
@@ -61,7 +61,7 @@ int cache_construct (
     cache               **const  pp_cache,
     size_t                       size,
     fn_hash_cache_equality      *pfn_equality,
-    fn_hash_cache_key_getter    *pfn_key_get
+    fn_hash_cache_key_accessor    *pfn_key_get
 )
 {
 
@@ -85,7 +85,7 @@ int cache_construct (
     p_cache->pfn_equality = pfn_equality ? pfn_equality : (fn_hash_cache_equality *) hash_cache_equals;
 
     // Set the key getter function
-    p_cache->pfn_key_get = pfn_key_get ? pfn_key_get : (fn_hash_cache_key_getter *) hash_cache_equals;
+    p_cache->pfn_key_get = pfn_key_get ? pfn_key_get : (fn_hash_cache_key_accessor *) hash_cache_equals;
 
     // Allocate memory for the cache
     p_cache->properties.pp_data = HASH_CACHE_REALLOC(0, sizeof(void *) * size);
@@ -446,6 +446,8 @@ int cache_for_each ( const cache *const p_cache, fn_hash_cache_property pfn_func
         }
     }
 }
+
+int cache_info ( const cache *const p_cache );
 
 int cache_destroy ( cache **const pp_cache, fn_hash_cache_free *pfn_cache_free )
 {

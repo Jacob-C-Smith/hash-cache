@@ -334,7 +334,7 @@ int hash_cache_cache_example ( int argc, const char *argv[] )
     if ( p_file == (void *) 0 ) goto failed_to_open_lorem_ipsum;
 
     // Construct the cache
-    if ( cache_construct(&p_cache, 1000, (fn_hash_cache_equality *)strcmp, (fn_hash_cache_key_getter *)hash_cache_word_frequency_key_get) == 0 ) goto failed_to_construct_cache;
+    if ( cache_construct(&p_cache, 1000, (fn_hash_cache_equality *)strcmp, (fn_hash_cache_key_accessor *)hash_cache_word_frequency_key_get) == 0 ) goto failed_to_construct_cache;
 
     // Read each word
     while ( feof(p_file) == false )

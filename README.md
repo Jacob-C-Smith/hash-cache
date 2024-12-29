@@ -58,7 +58,7 @@ typedef struct hash_table_s hash_table;
 // Functions
 typedef hash64 (fn_hash64)                ( const void *const k, size_t l );
 typedef int    (fn_hash_cache_equality)   ( const void *const p_a, const void *const p_b );
-typedef void  *(fn_hash_cache_key_getter) ( const void *const p_value );
+typedef void  *(fn_hash_cache_key_accessor) ( const void *const p_value );
 typedef void   (fn_hash_cache_free)       ( void *p_property );
 typedef int    (fn_hash_cache_property)   ( void *p_property );
 typedef int    (fn_hash_cache_property_i) ( void *p_property, size_t i );
@@ -90,7 +90,7 @@ hash64 hash_crc64 ( const void *const k, size_t l );
 int cache_create ( cache **const pp_cache );
 
 // Constructors
-int cache_construct ( cache **const pp_cache, size_t size, fn_hash_cache_equality *pfn_equality, fn_hash_cache_key_getter *pfn_key_get );
+int cache_construct ( cache **const pp_cache, size_t size, fn_hash_cache_equality *pfn_equality, fn_hash_cache_key_accessor *pfn_key_get );
 
 // Accessors
 int cache_get ( const cache *const p_cache, const void *const p_key, void **const pp_result );

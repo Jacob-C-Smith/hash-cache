@@ -50,7 +50,7 @@ struct cache_s
         size_t   count, max;
     } properties;
     fn_hash_cache_equality   *pfn_equality;
-    fn_hash_cache_key_getter *pfn_key_get;
+    fn_hash_cache_key_accessor *pfn_key_get;
 };
 
 // Function declarations 
@@ -80,7 +80,7 @@ DLLEXPORT int cache_construct (
     cache               **const  pp_cache,
     size_t                       size,
     fn_hash_cache_equality      *pfn_equality,
-    fn_hash_cache_key_getter    *pfn_key_get
+    fn_hash_cache_key_accessor    *pfn_key_get
 );
 
 // Accessors

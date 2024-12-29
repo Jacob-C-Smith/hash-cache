@@ -43,7 +43,7 @@ struct hash_table_s
         size_t   count, max, length;
     } properties;
     fn_hash_cache_equality   *pfn_equality;
-    fn_hash_cache_key_getter *pfn_key_get;
+    fn_hash_cache_key_accessor *pfn_key_get;
     fn_hash_cache_hash_index *pfn_hash_function;
 };
 
