@@ -343,9 +343,13 @@ int hash_cache_cache_example ( int argc, const char *argv[] )
         // Initialized data
         char _word[16] = { 0 };
         word_frequency *p_word_frequency = (void *) 0;
+        int r = 0;
 
         // Read the word
-        fscanf(p_file, "%s ", &_word);
+        r = fscanf(p_file, "%s ", (char *)&_word);
+
+        // Done?
+        if ( r == EOF ) continue;
 
         // Search the cache
         cache_get(p_cache, _word, (void **)&p_word_frequency);
@@ -367,7 +371,7 @@ int hash_cache_cache_example ( int argc, const char *argv[] )
             p_word_frequency->frequency = 1;
 
             // Copy the word
-            strncpy(p_word_frequency->_word, _word, 15);
+            strncpy(p_word_frequency->_word, _word, 16);
 
             // Insert the word into the cache
             cache_insert(p_cache, p_word_frequency->_word, p_word_frequency);
@@ -430,7 +434,7 @@ int hash_cache_hash_table_example ( int argc, const char *argv[] )
     );
 
     // Initialized data
-    hash_table *p_hash_table = (void *) 0;
+    //hash_table *p_hash_table = (void *) 0;
 
     // Construct the hash table
     //
@@ -460,6 +464,9 @@ int hash_cache_hash_table_example ( int argc, const char *argv[] )
 
 int hash_cache_word_frequency_print_i ( const word_frequency *const p_word_frequency, size_t i )
 {
+
+    // Unused
+    (void) i;
 
     // Print the word frequency struct to standard out
     printf("| %-12s | %5zu |\n", p_word_frequency->_word, p_word_frequency->frequency);

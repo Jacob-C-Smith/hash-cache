@@ -85,7 +85,7 @@ int cache_construct (
     p_cache->pfn_equality = pfn_equality ? pfn_equality : (fn_hash_cache_equality *) hash_cache_equals;
 
     // Set the key getter function
-    p_cache->pfn_key_get = pfn_key_get ? pfn_key_get : (fn_hash_cache_key_accessor *) hash_cache_equals;
+    p_cache->pfn_key_get = pfn_key_get ? pfn_key_get : (fn_hash_cache_key_accessor *) hash_cache_key_accessor;
 
     // Allocate memory for the cache
     p_cache->properties.pp_data = HASH_CACHE_REALLOC(0, sizeof(void *) * size);

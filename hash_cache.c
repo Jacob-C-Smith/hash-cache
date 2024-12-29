@@ -55,6 +55,13 @@ int hash_cache_equals ( const void *const p_a, const void *p_b )
     return ( p_a == p_b ) ? 0 : 1;
 }
 
+void *hash_cache_key_accessor ( const void *const p_value )
+{
+
+    // Done
+    return (void *)p_value;
+}
+
 void hash_cache_exit ( void )
 {
 

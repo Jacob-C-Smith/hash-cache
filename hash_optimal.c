@@ -129,7 +129,7 @@ int main ( int argc, const char *argv[] )
         if ( p_string == (void *) 0 ) goto failed_to_realloc;
 
         // Copy the string from the stack to the heap
-        strncpy((char *)p_string->_text, (char *)_buffer, len - 1);
+        strncpy((char *)p_string->_text, (char *)_buffer, len + 1);
 
         // Store a null terminator
         p_string->_text[len - 1] = '\0';

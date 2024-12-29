@@ -65,6 +65,16 @@ DLLEXPORT void hash_cache_init ( void ) __attribute__((constructor));
  */
 DLLEXPORT int hash_cache_equals ( const void *const p_a, const void *p_b );
 
+// Key accessors
+/** !
+ * Default key accessor
+ * 
+ * @param p_value the value
+ * 
+ * @return p_value
+ */
+void *hash_cache_key_accessor ( const void *const p_value );
+
 // Cleanup
 /** !
  * This gets called at runtime after main
